@@ -10,8 +10,10 @@ You can use the 'build.py' script to compile and test your code.
 
 The options are,
 
+```bash
 $ build.py me       # will compile your code 
 $ build.py test     # will run tests
 $ build.py archive  # will generate the zip file for submission
+```
 
 
