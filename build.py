@@ -15,7 +15,7 @@ def usage():
   sys.exit(1)
 
 students = os.listdir('./students');
-print students
+# print students
 
 # will take 1 arguments ...
 if len(sys.argv) < 2:
@@ -28,19 +28,27 @@ if cmd == 'test':
   sys.exit(0)
   
 if cmd == 'archive':
-  print 'will create an archive of files under students/'
-  if len(students) == 1:
-    tar = tarfile.open(students[1]+'.tar', "w")
-    for name in os.walk('./students/'+students[1]):
-      tar.add(name)
+  if len(sys.argv) > 2:
+    pt = sys.argv[2].split('/');
+    pt = filter(None, pt);
+    tar = tarfile.open(pt[-1] +'.tgz', "w:gz")
+    for root, dirs, files in os.walk(sys.argv[2]):
+      for name in files:
+        print 'adding: ', os.path.join(root, name)
+        tar.add(os.path.join(root, name))
     tar.close()
   else:
-    tar = tarfile.open('all.tar', "w")
-    for name in os.walk('./students/'):
-      tar.add(name)
+    tar = tarfile.open('all.tgz', "w:gz")
+    for root, dirs, files in os.walk('./students/'):
+      for name in files:
+        print 'adding: ', os.path.join(root, name)
+        tar.add(os.path.join(root, name))
     tar.close()
 
   sys.exit(0)
 
 print 'Will compile code for problem ', cmd
 
+# generate the correct code autogen.c
+
+# build
