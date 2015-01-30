@@ -11,7 +11,7 @@ You can use the 'build.py' script to compile and test your code.
 The options are,
 
 ```bash
-$ python build.py compile Reduce.c int sum # will compile Reduce.c under students/uxxxxxxx/ and run test cases if compilation is successful
+$ python build.py compile Reduce.c int sum # will compile Reduce.c under students/uxxxxxxx/ and run test cases if compilation is successful where datatype is int and operation is sum
 $ build.py archive    # will generate the zip file for submission
 ```
 
