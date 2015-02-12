@@ -89,6 +89,11 @@ if sys.argv[1]=='compile':
     sys.exit()
   file_out=open("main.c","w")
   file_out.write("#include<mpi.h> \n#include<stdio.h> \n#include<time.h> \n#include<stdlib.h>\n")
+  for user in users:
+    if program_name=='Reduce.c':
+      file_out.write('extern void '+user+'_Reduce(const void* sendbuf, void* recvbuf, int count, MPI_Datatype datatype, MPI_Op op, int root, MPI_Comm comm);\n')
+    elif program_name=='Scan.c':
+      file_out.write('extern void '+user+'_Scan(const void* sendbuf, void* recvbuf, int count, MPI_Datatype datatype, MPI_Op op, MPI_Comm comm);\n');
   file_out.write('int main(int argc, char *argv[]){\n\tint Rank=0,i,flag=0,flag1=0,ProcessRank,NumberofProcess,numberofElements;\n\t'+Data_type+' *number,*copy,*stud_result,*result,*temp;\n\tFILE *fptr=fopen("Results.txt","a");\n\tdouble t1,t2,timetaken;')
   file_out.write('\n\tMPI_Init(&argc,&argv);\n\tMPI_Comm_rank(MPI_COMM_WORLD,&ProcessRank);\n\tMPI_Comm_size(MPI_COMM_WORLD,&NumberofProcess);\n\t Rank=NumberofProcess/2;\n')
   file_out.write('\tnumberofElements= atoi(argv[1]);\n\tnumber = ('+Data_type+'*) malloc(sizeof('+Data_type+')*numberofElements);\n\tresult=('+Data_type+'*) malloc(sizeof('+Data_type+')*numberofElements);\n\tstud_result=('+Data_type+'*)malloc(sizeof('+Data_type+')*numberofElements);\n\tcopy=('+Data_type+'*)malloc(sizeof('+Data_type+')*numberofElements);\n\tsrand((unsigned int) (numberofElements*ProcessRank));\n\tfor(i=0;i<numberofElements;i++)\n\t\tnumber[i]= rand()%100;\n\t')
@@ -111,7 +116,7 @@ if sys.argv[1]=='compile':
     if program_name == 'Scan.c':
       file_out.write('\n\t for(i=0;i<numberofElements;i++)\n\t\tif(result[i]!=stud_result[i]){\n\t\t\tflag=1;\n\t\t\tbreak;\n\t\
 \t}\n\tMPI_Reduce((int*)&flag,(int*)&flag1,1,MPI_INT,MPI_SUM,Rank,MPI_COMM_WORLD);')
-      file_out.write('\n\t if(ProcessRank==Rank)\n\t\tif(flag1==0)\n\t\t\tfprintf(fptr,"\\n%s\\t correct\\t %f\\t %d","'+user+'",timetaken,NumberofProcess);\n\telse\n\t\t\tfprintf(fptr,"\\n%s\\t not correct\\t%f\\t%d","'+user+'",timetaken,NumberofProcess);\n\tflag1=flag=0;\n\t' )
+      file_out.write('\n\t if(ProcessRank==Rank){\n\t\tif(flag1==0)\n\t\t\tfprintf(fptr,"\\n%s\\t correct\\t %f\\t %d","'+user+'",timetaken,NumberofProcess);\n\telse\n\t\t\tfprintf(fptr,"\\n%s\\t not correct\\t%f\\t%d","'+user+'",timetaken,NumberofProcess);}\n\tflag1=flag=0;\n\t' )
   file_out.write('MPI_Finalize();\n\t');
   file_out.write('fclose(fptr);\n}')
   print 'mpicc -o output main.c '+command
