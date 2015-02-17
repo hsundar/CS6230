@@ -89,6 +89,8 @@ if sys.argv[1]=='compile':
     sys.exit()
   file_out=open("main.c","w")
   file_out.write("#include<mpi.h> \n#include<stdio.h> \n#include<time.h> \n#include<stdlib.h>\n")
+  if Data_type=='float' or Data_type=='double':
+    file_out.write('#include<math.h>\n#include<float.h>\n')
   for user in users:
     if program_name=='Reduce.c':
       file_out.write('extern void '+user+'_Reduce(const void* sendbuf, void* recvbuf, int count, MPI_Datatype datatype, MPI_Op op, int root, MPI_Comm comm);\n')
@@ -112,9 +114,19 @@ if sys.argv[1]=='compile':
     file_out.write('t2=MPI_Wtime()-t1;\n\tMPI_Reduce((double*)&t2,(double*)&timetaken,1,MPI_DOUBLE,MPI_SUM,Rank,MPI_COMM_WORLD);\n\t')
     command+=' students/'+user+'/'+program_name
     if program_name == 'Reduce.c':
-      file_out.write('if(ProcessRank==Rank){\n\t\tfor(i=0;i<numberofElements;i++)\n\t\t\tif(result[i]!=stud_result[i]){\n\t\t\t\tfprintf(fptr,"\\n%s\\t incorrect\\t %f\\t %d","'+user+'",timetaken,NumberofProcess);\n\t\t\t\tbreak;\n\t\t\t}\n\t\tif(i==numberofElements)\n\t\t\tfprintf(fptr,"\\n%s\\t correct\\t %f\\t %d","'+user+'",timetaken,NumberofProcess);\n\t}\n\t')
+      file_out.write('if(ProcessRank==Rank){\n\t\tfor(i=0;i<numberofElements;i++)\n\t\t\t')
+      if Data_type == 'float' or Data_type =='double':
+        file_out.write('if (fabs(result[i]-stud_result[i]) >= FLT_EPSILON)')
+      else:
+        file_out.write('if(result[i]!=stud_result[i])')
+      file_out.write('{\n\t\t\t\tfprintf(fptr,"\\n%s\\t incorrect\\t %f\\t %d","'+user+'",timetaken,NumberofProcess);\n\t\t\t\tbreak;\n\t\t\t}\n\t\tif(i==numberofElements)\n\t\t\tfprintf(fptr,"\\n%s\\t correct\\t %f\\t %d","'+user+'",timetaken,NumberofProcess);\n\t}\n\t')
     if program_name == 'Scan.c':
-      file_out.write('\n\t for(i=0;i<numberofElements;i++)\n\t\tif(result[i]!=stud_result[i]){\n\t\t\tflag=1;\n\t\t\tbreak;\n\t\
+      file_out.write('\n\t for(i=0;i<numberofElements;i++)\n\t\t')
+      if Data_type == 'float' or Data_type =='double':
+        file_out.write('if (fabs(result[i]-stud_result[i]) >= FLT_EPSILON)')
+      else:
+        file_out.write('if(result[i]!=stud_result[i])')
+      file_out.write('{\n\t\t\tflag=1;\n\t\t\tbreak;\n\t\
 \t}\n\tMPI_Reduce((int*)&flag,(int*)&flag1,1,MPI_INT,MPI_SUM,Rank,MPI_COMM_WORLD);')
       file_out.write('\n\t if(ProcessRank==Rank){\n\t\tif(flag1==0)\n\t\t\tfprintf(fptr,"\\n%s\\t correct\\t %f\\t %d","'+user+'",timetaken,NumberofProcess);\n\telse\n\t\t\tfprintf(fptr,"\\n%s\\t not correct\\t%f\\t%d","'+user+'",timetaken,NumberofProcess);}\n\tflag1=flag=0;\n\t' )
   file_out.write('MPI_Finalize();\n\t');
